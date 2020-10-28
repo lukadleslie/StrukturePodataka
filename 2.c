@@ -32,8 +32,6 @@ int main(void) {
 
 	while (1) {
 
-        printf("For Git\n");
-
 		printf("Novi element:\tA - na pocetak\tB - na kraju\nC - Pronalazak elemenata\nD - Obrisati element\nE - Kraj programa\n");
 		scanf(" %c", &s);
 		switch (s) {
