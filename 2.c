@@ -20,14 +20,14 @@ node *dodaj_na_kraju(node **, node *);
 void ispis(node *);
 node *pronalazi_element(node *, char [MAX_WORD]);
 int usporedi(char [MAX_WORD], char [MAX_WORD]);
-void erase(node **, node *);
+void brisi_element(node **, node *);
 
 int main()
 {
     node *head = NULL;
     node *n;
     int z;
-    char x[MAX_WORD], y[MAX_WORD], c, ime[MAX_WORD];
+    char x[MAX_WORD], y[MAX_WORD], c;
 
     do{
         printf("\nA - dodaj nova osoba na pocetku liste\nB - ispisati listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisati osobu iz liste\nQ - quit program\n\n");
@@ -72,7 +72,7 @@ int main()
                 printf("\nUnesite prezime: ");
                 scanf(" %s", x);
                 n = pronalazi_element(head, x);
-                erase(&head, n);
+                brisi_element(&head, n);
                 break;
             case 'Q':
             case 'q':
@@ -162,7 +162,7 @@ int usporedi(char str[MAX_WORD],char str2[MAX_WORD])
     }
     return 1;
 }
-void erase(node **head, node *n)
+void brisi_element(node **head, node *n)
 {
     node *tmp = *head;
 
