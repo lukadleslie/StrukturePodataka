@@ -1,166 +1,181 @@
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-#define MAX_NAME (256)
+#define MAX_WORD (256)
 
-struct person;
-typedef struct person *Position;
-typedef struct person {
-	char ime[MAX_NAME];
-	char prezime[MAX_NAME];
-	int birthYear;
-	Position next;
-} Person;
+typedef struct person node;
+struct person{
+    char ime[MAX_WORD];
+    char prez[MAX_WORD];
+    int godina;
+    struct person *next;
+};
 
-Position createStudent(char*, char*, int);
-void printList(Position);
-void unosPocetak(Position, Position);
-void unosKraj(Position, Position);
-Position pronalazak(Position, char*);
-Position pronalazakPret(Position, char*);
-void brisi(Position, char*);
+void unos(char *, char *, int *);
+node *napravi_node(char *, char*, int *);
+node *dodaj_na_pocetku(node **, node *);
+node *dodaj_na_kraju(node **, node *);
+void ispis(node *);
+node *pronalazi_element(node *, char [MAX_WORD]);
+int usporedi(char [MAX_WORD], char [MAX_WORD]);
+void erase(node **, node *);
 
-int main(void) {
+int main()
+{
+    node *head = NULL;
+    node *n;
+    int z;
+    char x[MAX_WORD], y[MAX_WORD], c, ime[MAX_WORD];
 
-	Position head = NULL, p, n;
-	char firstName[MAX_NAME], lastName[MAX_NAME], prezimen[MAX_NAME];
-	int birthYear;
-	char s;
+    do{
+        printf("\nA - dodaj nova osoba na pocetku liste\nB - ispisati listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisati osobu iz liste\nQ - quit program\n\n");
 
-	while (1) {
+        scanf(" %c", &c);
 
-		printf("Novi element:\tA - na pocetak\tB - na kraju\nC - Pronalazak elemenata\nD - Obrisati element\nE - Kraj programa\n");
-		scanf(" %c", &s);
-		switch (s) {
-            case 'A' : 
+        switch(c){
+            case 'A':
             case 'a':
-                printf("unesite ime: ");
-                scanf(" %s", firstName);
-
-                printf("unesite prezime: ");
-                scanf(" %s", lastName);
-
-                printf("unesite godinu rodjenja: ");
-                scanf(" %d", &birthYear);
-
-                printf("\n");
-
-                p = createStudent(firstName, lastName, birthYear);
-                unosPocetak(&head, p);
-                printList(&head);
+                unos(x, y, &z);
+                n = napravi_node(x,y,&z);
+                dodaj_na_pocetku(&head, n);
                 break;
             case 'B':
             case 'b':
-                printf("unesite ime: ");
-                scanf(" %s", firstName);
-
-                printf("unesite prezime: ");
-                scanf(" %s", lastName);
-
-                printf("unesite godinu rodjenja: ");
-                scanf(" %d", &birthYear);
-
+                if(head == NULL){
+                    printf("\nList je prazan...\n\n");
+                    break;
+                }
                 printf("\n");
-
-                p = createStudent(firstName, lastName, birthYear);
-                unosKraj(&head, p);
-                printList(&head);
+                ispis(head);
                 break;
             case 'C':
             case 'c':
-                printf("unesite prezime studenta koje zelite naci: ");
-                scanf(" %s", prezimen);
-                n = pronalazak(&head, prezimen);
-                printf("\n%s %s %d\r\n", n->ime, n->prezime, n->birthYear);
+                unos(x, y, &z);
+                n = napravi_node(x,y,&z);
+                dodaj_na_kraju(&head, n);
                 break;
             case 'D':
             case 'd':
-
-                printf("unesite prezime studenta koje zelite izbrisati: ");
-                scanf(" %s", prezimen);
-                brisi(&head, prezimen);
-                printList(&head);
+                if(head == NULL){
+                    printf("\nList je prazan...\n\n");
+                    break;
+                }
+                printf("Unesite prezime: ");
+                scanf(" %s", x);
+                n = pronalazi_element(head, x);
+                printf("/*\t%s %s\t%d\t*/\n", n->ime, n->prez, n->godina);
                 break;
             case 'E':
             case 'e':
-                return 0;
+                printf("\nUnesite prezime: ");
+                scanf(" %s", x);
+                n = pronalazi_element(head, x);
+                erase(&head, n);
                 break;
-            }  
+            case 'Q':
+            case 'q':
+                continue;
+            default:
+                printf("\nPonovno unesite odabir:\n\n");
+                break;
         }
 
-        return 0;
+    }while(c != 'q' && c != 'Q');
+
+
+    return 0;
+}
+void unos(char *x, char *y, int *z)
+{
+   printf("\nUnesi ime: ");
+   scanf(" %s", x);
+   printf("Unesi prezime: ");
+   scanf(" %s", y);
+   printf("Unesi godinu rodenja: ");
+   scanf(" %d", z);
+}
+node *napravi_node(char *x, char*y, int *z)
+{
+    node *tmp = malloc(sizeof(node));
+    strcpy(tmp->ime, x);
+    strcpy(tmp->prez, y);
+    tmp->godina = *z;
+    tmp->next = NULL;
+
+    return tmp;
+}
+void ispis(node *head)
+{
+    node *tmp = head;
+
+    while(tmp != NULL){
+        printf("/*\t%s %s\t%d\t*/\n", tmp->ime, tmp->prez, tmp->godina);
+        tmp = tmp->next;
+    } 
+}
+node *dodaj_na_pocetku(node **head, node *n)
+{
+    n->next = *head;
+    *head = n;
+    return n;
+}
+node *dodaj_na_kraju(node **head, node *n)
+{
+    if(*head == NULL)
+        dodaj_na_pocetku(head, n);
+    else{
+        node *tmp = *head;
+        while(tmp->next != NULL)
+            tmp = tmp->next;
+        tmp->next = n;
+        n->next = NULL;
     }
 
-Position createStudent(char* firstName, char* lastName, int birthYear)
-    {
-        Position p;
-
-        p = (Position)malloc(sizeof(struct person));
-
-        p->birthYear = birthYear;
-        strcpy(p->ime, firstName);
-        strcpy(p->prezime, lastName);
-        p->next = NULL;
-
-        return p;
-    }
-void printList(Position head)
-    {
-        Position p = NULL;
-
-        printf("KONTENT LISTE: \n\n");
-        for (p = head->next; p != NULL; p = p->next) {
-            printf("\t %s %s %d \n", p->ime, p->prezime, p->birthYear);
+    return n;
+}
+node *pronalazi_element(node *head, char ime[MAX_WORD])
+{
+    int br = 0;
+    node *n;
+    for(node *tmp = head; tmp != NULL; tmp = tmp->next){
+        if(usporedi(tmp->prez, ime) && strlen(tmp->prez) == strlen(ime)){
+            n = tmp;         
+            br++;
         }
-        printf("\r\n");
+    }    
+        if(br > 1)
+            printf("\n\nMore than one person matched your search..\n");
+        else if(br == 0)
+            printf("\n\nNo items matched your query...\n");
+
+        return n;
+}
+int usporedi(char str[MAX_WORD],char str2[MAX_WORD])
+{
+    for(int i = 0; str[i]; i++){
+        if(tolower(str[i]) == tolower(str2[i]))
+            continue;
+        else
+            return 0;
+    }
+    return 1;
+}
+void erase(node **head, node *n)
+{
+    node *tmp = *head;
+
+    if(*head == n){
+        *head = n->next;
+        free(n);
+        return;
     }
 
-void unosPocetak(Position head, Position p)
-    {
-        p->next = head->next;
-        head->next = p;
-    }
+    while(tmp->next != n)
+        tmp = tmp->next;
 
-void unosKraj(Position q, Position p)
-    {
-        while (q->next != NULL) {
-            q = q->next;
-        }
-        unosPocetak(q, p);
-    }
-
-Position pronalazak(Position q, char* prez) {
-	while (q->next != NULL && strcmp(q->prezime, prez))
-		q = q->next;
-	return q;
+    tmp->next = tmp->next->next;
+    free(n);
+    return;
 }
-
-Position pronalazakPret(Position p, char *prezimen) {
-	Position pret = p;
-	p = p->next;
-
-	while (p->next != NULL && strcmp(p->prezime, prezimen)) {
-		pret = p;
-		p = p->next;
-	}
-	if (p->next == NULL) {
-		printf("\nne postoji!\n\n");
-		return NULL;
-	}
-	return pret;
-}
-
-void brisi(Position p, char *prezimen) {
-	Position prev;
-	prev = pronalazakPret(p, prezimen);
-
-	if (prev != NULL) {
-		p = prev->next;
-		prev->next = p->next;
-		free(p);
-	}
-}
-
