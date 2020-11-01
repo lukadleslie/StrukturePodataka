@@ -18,20 +18,27 @@ node *napravi_node(char *, char*, int *);
 node *dodaj_na_pocetku(node **, node *);
 node *dodaj_na_kraju(node **, node *);
 void ispis(node *);
-node *pronalazi_element(node *, char [MAX_WORD]);
+node *pronalazi_element(node *, char [MAX_WORD], int *);
 int usporedi(char [MAX_WORD], char [MAX_WORD]);
 void brisi_element(node **, node *);
+void unesi_nakon(node *, node *);
+void unesi_prije(node *, node *, node *);
+void sort(node *);
+void write(FILE *, node *);
+void read(FILE *, node **);
 
 int main()
 {
+    FILE *ptr;
     node *head = NULL;
-    node *n;
-    int z;
+    node *n, *n2;
+    int z, error = 1;
     char x[MAX_WORD], y[MAX_WORD], c;
 
     do{
-        printf("\nA - dodaj nova osoba na pocetku liste\nB - ispisati listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisati osobu iz liste\nQ - quit program\n\n");
+        printf("\nA - Dodaj nova osoba na pocetku liste\nB - Ispisati listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisati osobu iz liste\nF - Dodaj osobu nakon drugom osobom\nG - Dodaj osobu prije druge osobe\nH - Sortiraj list po prezimenima\nI - Upisi list u datoteku\nJ - Citaj list iz datoteke\nQ - Quit program\n\n");
 
+        printf("Unesite odabir: ");
         scanf(" %c", &c);
 
         switch(c){
@@ -64,21 +71,76 @@ int main()
                 }
                 printf("Unesite prezime: ");
                 scanf(" %s", x);
-                n = pronalazi_element(head, x);
-                printf("/*\t%s %s\t%d\t*/\n", n->ime, n->prez, n->godina);
+                n = pronalazi_element(head, x, &error);
+                if(error)
+                    printf("/*\t%s %s\t%d\t*/\n", n->ime, n->prez, n->godina);
                 break;
             case 'E':
             case 'e':
                 printf("\nUnesite prezime: ");
                 scanf(" %s", x);
-                n = pronalazi_element(head, x);
+                n = pronalazi_element(head, x, &error);
                 brisi_element(&head, n);
+                break;
+            case 'F':
+            case 'f':
+                if(head == NULL){
+                    printf("\nList je prazan...\n\n");
+                    break;
+                }
+                unos(x, y, &z);
+                n = napravi_node(x, y, &z);
+                printf("Prezime osobe koje ce unosen osoba slijediti: ");
+                scanf(" %s", x);
+                n2 = pronalazi_element(head, x, &error);
+                if(error)
+                    unesi_nakon(n2,n);
+                break;
+            case 'G':
+            case 'g':
+                if(head == NULL){
+                    printf("\nList je prazan...\n\n");
+                    break;
+                }
+                unos(x, y, &z);
+                n = napravi_node(x, y, &z);
+                printf("Prezime osobe koje ce unosen osoba prethoditi: ");
+                scanf(" %s", x);
+                n2 = pronalazi_element(head, x, &error);
+                if(error)
+                    unesi_prije(head,n2,n);
+                break;
+            case 'H':
+            case 'h':
+                if(head == NULL){
+                    printf("\nList je prazan...\n\n");
+                    break;
+                }
+                sort(head);
+                break;
+            case 'I':
+            case 'i':
+                ptr = fopen("write_to.txt", "w");
+                write(ptr, head);
+                if(head == NULL){
+                    printf("\nList je prazan...\n\n");
+                    break;
+                }
+                break;
+            case 'J':
+            case 'j':
+                ptr = fopen("read_from.txt", "r");
+                read(ptr, &head);
+                if(head == NULL){
+                    //printf("\nList je prazan...\n\n");
+                    break;
+                }
                 break;
             case 'Q':
             case 'q':
                 continue;
             default:
-                printf("\nPonovno unesite odabir:\n\n");
+                printf("\nPonovno unesite odabir...\n\n");
                 break;
         }
 
@@ -135,9 +197,10 @@ node *dodaj_na_kraju(node **head, node *n)
 
     return n;
 }
-node *pronalazi_element(node *head, char ime[MAX_WORD])
+node *pronalazi_element(node *head, char ime[MAX_WORD], int *error)
 {
     int br = 0;
+    *error = 1;
     node *n;
     for(node *tmp = head; tmp != NULL; tmp = tmp->next){
         if(usporedi(tmp->prez, ime) && strlen(tmp->prez) == strlen(ime)){
@@ -146,9 +209,12 @@ node *pronalazi_element(node *head, char ime[MAX_WORD])
         }
     }    
         if(br > 1)
-            printf("\n\nMore than one person matched your search..\n");
-        else if(br == 0)
-            printf("\n\nNo items matched your query...\n");
+            printf("\nMore than one person matched your search..\n");
+        else if(br == 0){
+            printf("\nNo items matched your query...\n");
+            *error = 0;
+            return NULL;
+        }
 
         return n;
 }
@@ -178,4 +244,66 @@ void brisi_element(node **head, node *n)
     tmp->next = tmp->next->next;
     free(n);
     return;
+}
+void unesi_nakon(node *current, node *new)
+{
+   new->next = current->next;
+   current->next = new;
+}
+void unesi_prije(node *head, node *current, node *new)
+{
+    node *tmp = head;
+
+    while(tmp->next != current)
+        tmp = tmp->next;
+
+    tmp->next = new;
+    new->next = current;
+}
+void write(FILE *ptr, node *head)
+{
+    node *n = head;
+
+    while(n != NULL){
+        fprintf(ptr, "%s %s\t%d\n", n->ime, n->prez, n->godina);
+        n = n->next;
+    }
+}
+void read(FILE *ptr, node **head)
+{
+    *head = NULL;
+    node *n;
+    int br = 0, z;
+    char a,c, x[MAX_WORD], y[MAX_WORD];
+
+    while ((c = fgetc(ptr)) != EOF)
+        if (c == '\n')
+            br++;
+    rewind(ptr);
+
+    for(int i = 0; i < br; i++){
+        fscanf(ptr, "%s %s %d", x, y, &z);
+        n = napravi_node(x,y,&z);
+        dodaj_na_kraju(head, n);
+    }
+}
+void sort(node *head)
+{
+    node *prev = head;
+    node *tmp = prev->next;
+    node *nxt = tmp->next;
+    node *temp;
+
+    while(nxt->next != NULL){
+        printf("%s %s %s %s\n", prev->ime, tmp->ime, nxt->ime, nxt->next->ime);
+        if(strcmp(tmp->prez, nxt->prez) > 0){
+            prev->next = nxt;
+            tmp->next = nxt->next;
+            nxt->next = tmp;
+            temp = tmp;
+            tmp = nxt;
+            nxt = temp;
+        }
+        nxt = nxt->next;
+    }
 }
