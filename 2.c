@@ -26,6 +26,7 @@ void unesi_prije(node *, node *, node *);
 void sort(node *);
 void write(FILE *, node *);
 void read(FILE *, node **);
+void swap(node *, node *);
 
 int main()
 {
@@ -36,7 +37,7 @@ int main()
     char x[MAX_WORD], y[MAX_WORD], c;
 
     do{
-        printf("\nA - Dodaj nova osoba na pocetku liste\nB - Ispisati listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisati osobu iz liste\nF - Dodaj osobu nakon drugom osobom\nG - Dodaj osobu prije druge osobe\nH - Sortiraj list po prezimenima\nI - Upisi list u datoteku\nJ - Citaj list iz datoteke\nQ - Quit program\n\n");
+        printf("\nA - Dodaj novu osobu na pocetku liste\nB - Ispisi listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisi osobu sa liste\nF - Dodaj iducu osobu nakon jedne osobe\nG - Dodaj osobu prije druge osobe\nH - Sortiraj listu po prezimenima\nI - Upisi listu u datoteku\nJ - Citaj listu iz datoteke\nQ - Quit program\n\n");
 
         printf("Unesite odabir: ");
         scanf(" %c", &c);
@@ -131,10 +132,6 @@ int main()
             case 'j':
                 ptr = fopen("read_from.txt", "r");
                 read(ptr, &head);
-                if(head == NULL){
-                    //printf("\nList je prazan...\n\n");
-                    break;
-                }
                 break;
             case 'Q':
             case 'q':
@@ -271,7 +268,7 @@ void write(FILE *ptr, node *head)
 }
 void read(FILE *ptr, node **head)
 {
-    *head = NULL;
+    //*head = NULL;
     node *n;
     int br = 0, z;
     char a,c, x[MAX_WORD], y[MAX_WORD];
@@ -289,21 +286,30 @@ void read(FILE *ptr, node **head)
 }
 void sort(node *head)
 {
-    node *prev = head;
-    node *tmp = prev->next;
-    node *nxt = tmp->next;
-    node *temp;
-
-    while(nxt->next != NULL){
-        printf("%s %s %s %s\n", prev->ime, tmp->ime, nxt->ime, nxt->next->ime);
-        if(strcmp(tmp->prez, nxt->prez) > 0){
-            prev->next = nxt;
-            tmp->next = nxt->next;
-            nxt->next = tmp;
-            temp = tmp;
-            tmp = nxt;
-            nxt = temp;
+    node *val;
+    for(node *tmp = head; tmp != NULL; tmp = tmp->next){
+        for(node *nxt = head; nxt->next != NULL; nxt = nxt->next){
+            if((nxt->next != NULL) && (strcmp(nxt->prez, nxt->next->prez) > 0))
+                swap(nxt, nxt->next);
         }
-        nxt = nxt->next;
     }
+}
+void swap(node *n1, node *n2)
+{
+    char temp[MAX_WORD];
+    int tmp;
+
+    strcpy(temp, n1->ime);
+    strcpy(n1->ime, n2->ime);
+    strcpy(n2->ime, temp);
+    strcpy(temp, n1->ime);
+
+    strcpy(temp, n1->prez);
+    strcpy(n1->prez, n2->prez);
+    strcpy(n2->prez, temp);
+    strcpy(temp, n1->prez);
+
+    tmp = n1->godina;
+    n1->godina = n2->godina;
+    n2->godina = tmp;
 }
