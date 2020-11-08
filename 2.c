@@ -5,13 +5,13 @@
 
 #define MAX_WORD (256)
 
-typedef struct person node;
-struct person{
+//typedef struct person node;
+typedef struct person{
     char ime[MAX_WORD];
     char prez[MAX_WORD];
     int godina;
     struct person *next;
-};
+}node;
 
 void unos(char *, char *, int *);
 node *napravi_node(char *, char*, int *);
@@ -35,7 +35,7 @@ int main()
     node *n, *n2;
     int z, error = 1;
     char x[MAX_WORD], y[MAX_WORD], c;
-
+    
     do{
         printf("\nA - Dodaj novu osobu na pocetku liste\nB - Ispisi listu\nC - Dodaj osobu na kraju liste\nD - Pretrazi osobu po prezimenu\nE - Obrisi osobu sa liste\nF - Dodaj iducu osobu nakon jedne osobe\nG - Dodaj osobu prije druge osobe\nH - Sortiraj listu po prezimenima\nI - Upisi listu u datoteku\nJ - Citaj listu iz datoteke\nQ - Quit program\n\n");
 
@@ -121,7 +121,7 @@ int main()
                 break;
             case 'I':
             case 'i':
-                ptr = fopen("write_to.txt", "w");
+                ptr = fopen("datoteke/write_to.txt", "w");
                 write(ptr, head);
                 if(head == NULL){
                     printf("\nList je prazan...\n\n");
@@ -130,8 +130,9 @@ int main()
                 break;
             case 'J':
             case 'j':
-                ptr = fopen("read_from.txt", "r");
+                ptr = fopen("datoteke/read_from.txt", "r");
                 read(ptr, &head);
+                fclose(ptr);
                 break;
             case 'Q':
             case 'q':
@@ -198,7 +199,7 @@ node *pronalazi_element(node *head, char ime[MAX_WORD], int *error)
 {
     int br = 0;
     *error = 1;
-    node *n;
+    node *n = NULL;
     for(node *tmp = head; tmp != NULL; tmp = tmp->next){
         if(usporedi(tmp->prez, ime) && strlen(tmp->prez) == strlen(ime)){
             n = tmp;         
@@ -208,7 +209,7 @@ node *pronalazi_element(node *head, char ime[MAX_WORD], int *error)
         if(br > 1)
             printf("\nMore than one person matched your search..\n");
         else if(br == 0){
-            printf("\nNo items matched your query...\n");
+           printf("\nNo items matched your query...\n");
             *error = 0;
             return NULL;
         }
@@ -273,6 +274,10 @@ void read(FILE *ptr, node **head)
     int br = 0, z;
     char a,c, x[MAX_WORD], y[MAX_WORD];
 
+    if(ferror(ptr)){
+        printf("There was an error retrieving data from the file...\n");
+        return;
+    }
     while ((c = fgetc(ptr)) != EOF)
         if (c == '\n')
             br++;
@@ -286,7 +291,6 @@ void read(FILE *ptr, node **head)
 }
 void sort(node *head)
 {
-    node *val;
     for(node *tmp = head; tmp != NULL; tmp = tmp->next){
         for(node *nxt = head; nxt->next != NULL; nxt = nxt->next){
             if((nxt->next != NULL) && (strcmp(nxt->prez, nxt->next->prez) > 0))
@@ -302,12 +306,10 @@ void swap(node *n1, node *n2)
     strcpy(temp, n1->ime);
     strcpy(n1->ime, n2->ime);
     strcpy(n2->ime, temp);
-    strcpy(temp, n1->ime);
 
     strcpy(temp, n1->prez);
     strcpy(n1->prez, n2->prez);
     strcpy(n2->prez, temp);
-    strcpy(temp, n1->prez);
 
     tmp = n1->godina;
     n1->godina = n2->godina;
