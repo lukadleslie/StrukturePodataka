@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX_WORD (256)
 
@@ -18,21 +19,19 @@ void print_list(poly_ptr);
 void sort(poly_ptr);
 void swap(poly_ptr, poly_ptr);
 void combine(poly_ptr);
+int is_number(int);
 
 int main(void)
 {
-    char dat_1[MAX_WORD] = "datoteke/coeff.txt"; 
-    char dat_2[MAX_WORD] = "datoteke/exp.txt";
-    char dat_3[MAX_WORD] = "datoteke/test.txt";
+    char dat_1[MAX_WORD] = "datoteke/prvi.txt", dat_2[MAX_WORD] = "datoteke/drugi.txt", c;
 
-    poly_ptr p_1 = malloc(sizeof(poly));
-    poly_ptr p_2 = malloc(sizeof(poly));
+    poly_ptr p_1 = malloc(sizeof(poly)), p_2 = malloc(sizeof(poly));
     p_1->next = NULL, p_2->next = NULL;
     poly p1, p2, zbr, pro;
     p1.next = NULL, p2.next = NULL, zbr.next = NULL, pro.next = NULL;
-    poly test;
-    test.next = NULL;
-    test = read_data(&test, dat_3);
+
+    printf("Would you like to continue with default polynomials (y/n): ");
+    scanf("%c", &c);
 
     p1 = read_data(&p1, dat_1);
     p2 = read_data(&p2, dat_2);
@@ -47,13 +46,6 @@ int main(void)
     printf("Zbroj polinoma:  ");   print_list(&zbr);
     printf("Umnozak polinoma:  ");   print_list(&pro);
 
-    //combine(&pro);
-    printf("\n\n");
-    sort(&test);
-    printf("UNCOMBINED: ");print_list(&test);
-    combine(&test);
-    printf("COMBINED: ");print_list(&test);
-
     return 0;
 }
 poly read_data(poly_ptr n, char *dat)
@@ -61,16 +53,48 @@ poly read_data(poly_ptr n, char *dat)
     FILE *ptr = NULL;
     ptr = fopen(dat, "r");
 
-    poly_ptr temp;
+    char c;
+    int br = 0, temp = 0, x = 0, *y;
 
-    while(!feof(ptr)){
-        temp = (poly_ptr)malloc(sizeof(poly));
-        fscanf(ptr, " %d %d", &temp->coeff, &temp->exp);
-        temp->next = n->next;
-        n->next = temp;
+    poly_ptr temp_ptr; 
+    y = (int *)malloc(sizeof(int));
+
+    while((c = fgetc(ptr)) != EOF){
+        if(is_number(c)){
+            if(br){
+                temp *= 10;
+                temp += c - 48;
+            }
+            else{
+                temp = c-48;
+                br++;
+            }
+        }
+        else if(br > 0){
+            x++;
+            y = (int *)realloc(y, x * sizeof(int));
+            y[x-1] = temp;
+            temp = 0;
+            br = 0;
+        }
+        else{
+            br = 0;
+        }
     }
-    
-    fclose(ptr); 
+    x++;
+    y = (int *)realloc(y, x * sizeof(int));
+    y[x-1] = temp;
+
+    for(int i = 0; i < x; i+=2){
+        temp_ptr = (poly_ptr)malloc(sizeof(poly));
+        temp_ptr->coeff = y[i];
+        temp_ptr->exp= y[i+1];
+        temp_ptr->next = n->next;
+        n->next = temp_ptr;
+
+    }
+
+    fclose(ptr);
     return *n;
 }
 poly add(poly_ptr p1, poly_ptr p2, poly_ptr zbr)
@@ -94,7 +118,7 @@ poly add(poly_ptr p1, poly_ptr p2, poly_ptr zbr)
         p2 = p2->next;
     }
     sort(zbr);
-    //combine(zbr);
+    combine(zbr);
     return *zbr;
 }
 poly mult(poly_ptr p1, poly_ptr p2, poly_ptr pro)
@@ -117,7 +141,7 @@ poly mult(poly_ptr p1, poly_ptr p2, poly_ptr pro)
     }
 
     sort(pro);
-    //combine(pro);
+    combine(pro);
     return *pro;
 }
 void print_list(poly_ptr p)
@@ -175,14 +199,17 @@ void combine(poly_ptr ptr)
     ptr = ptr->next;
 
     while(ptr->next != NULL){
-        printf("%d    %d\n", ptr->exp, ptr->next->exp);
         if(ptr->exp == ptr->next->exp){
             ptr->coeff += ptr->next->coeff;
-            ptr->next = ptr->next->next;
             free(ptr->next);
+            ptr->next = ptr->next->next;
         }
         else
             ptr = ptr->next;
     }
     return;
+}
+int is_number(int x)
+{
+    return (x < 58 && x > 47) ? 1 : 0;
 }
