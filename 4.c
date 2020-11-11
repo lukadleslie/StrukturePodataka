@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -198,7 +200,7 @@ void combine(poly_ptr ptr)
     while(ptr->next != NULL){
         if(ptr->exp == ptr->next->exp){
             ptr->coeff += ptr->next->coeff;
-            free(ptr->next);
+            //free(ptr->next);
             ptr->next = ptr->next->next;
         }
         else
