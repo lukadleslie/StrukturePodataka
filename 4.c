@@ -23,15 +23,12 @@ int is_number(int);
 
 int main(void)
 {
-    char dat_1[MAX_WORD] = "datoteke/prvi.txt", dat_2[MAX_WORD] = "datoteke/drugi.txt", c;
+    char dat_1[MAX_WORD] = "datoteke/prvi.txt", dat_2[MAX_WORD] = "datoteke/drugi.txt";
 
     poly_ptr p_1 = malloc(sizeof(poly)), p_2 = malloc(sizeof(poly));
     p_1->next = NULL, p_2->next = NULL;
     poly p1, p2, zbr, pro;
     p1.next = NULL, p2.next = NULL, zbr.next = NULL, pro.next = NULL;
-
-    printf("Would you like to continue with default polynomials (y/n): ");
-    scanf("%c", &c);
 
     p1 = read_data(&p1, dat_1);
     p2 = read_data(&p2, dat_2);
@@ -152,9 +149,9 @@ void print_list(poly_ptr p)
         if(i)
             printf(" + ");
         if(p->next->exp == 1)
-            printf("(%dx)", p->next->coeff);
+            printf("%dx", p->next->coeff);
         else if(!p->next->exp)
-            printf("(%d)", p->next->coeff);
+            printf("%d", p->next->coeff);
         else
             printf("(%dx)^%d", p->next->coeff, p->next->exp);
 
