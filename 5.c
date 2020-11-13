@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,12 +14,12 @@ typedef struct list{
 list read_file(list_ptr, char *);
 list unija(list_ptr, list_ptr, list_ptr);
 list presjek(list_ptr, list_ptr, list_ptr);
-void sort(list_ptr);
-void swap(list_ptr, list_ptr);
-void combine(list_ptr);
-void printlist(list_ptr);
+int sort(list_ptr);
+int swap(list_ptr, list_ptr);
+int combine(list_ptr);
+int printlist(list_ptr);
 
-int main()
+int main(void)
 {
     char dat_1[MAX_WORD] = "datoteke/L1.txt", dat_2[MAX_WORD] = "datoteke/L2.txt";
     list l1, l2, uni, inter;
@@ -30,15 +32,9 @@ int main()
     uni = unija(&l1, &l2, &uni);
 
     printf("Unija:\n");
-    while(uni.next != NULL){
-        printf("%d\n", uni.next->broj);
-        uni = *uni.next;
-    }
+    printlist(&uni);
     printf("Presjek:\n");
-    while(inter.next != NULL){
-        printf("%d\n", inter.next->broj);
-        inter = *inter.next;
-    }
+    printlist(&inter);
 
     return 0;
 }
@@ -106,7 +102,7 @@ list presjek(list_ptr l1, list_ptr l2, list_ptr presjek)
     combine(presjek);
     return *presjek;
 }
-void sort(list_ptr sorted)
+int sort(list_ptr sorted)
 {
     list_ptr temp = malloc(sizeof(list));
     temp = sorted;
@@ -121,9 +117,10 @@ void sort(list_ptr sorted)
             temp = temp_head;
             sorted = sorted->next;
     }
-    return;
+
+    return 0;
 }
-void swap(list_ptr a, list_ptr b)
+int swap(list_ptr a, list_ptr b)
 {
    int temp = 0; 
 
@@ -131,21 +128,31 @@ void swap(list_ptr a, list_ptr b)
    a->broj = b->broj;
    b->broj = temp;
 
-   return;
+    return 0;
 }
-void combine(list_ptr ptr)
+int combine(list_ptr ptr)
 {
     ptr = ptr->next;
+    list_ptr ptr_free;
 
     while(ptr->next != NULL){
-        if(ptr->broj == ptr->next->broj)
+        if(ptr->broj == ptr->next->broj){
+            ptr_free = ptr->next;
             ptr->next = ptr->next->next;
+            free(ptr_free);
+        }
         else
             ptr = ptr->next;
     }
-    return;
+    return 0;
 }
-void printlist(list_ptr ptr)
+int printlist(list_ptr ptr)
 {
-    ;
+    while(ptr->next != NULL){
+        printf("%d\t", ptr->next->broj);
+        ptr = ptr->next;
+    }
+    printf("\n");
+
+    return 0;
 }

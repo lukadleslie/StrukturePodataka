@@ -17,10 +17,10 @@ typedef struct poly{
 poly read_data(poly_ptr, char *);
 poly add(poly_ptr, poly_ptr, poly_ptr);
 poly mult(poly_ptr, poly_ptr, poly_ptr);
-void print_list(poly_ptr); 
-void sort(poly_ptr);
-void swap(poly_ptr, poly_ptr);
-void combine(poly_ptr);
+int print_list(poly_ptr); 
+int sort(poly_ptr);
+int swap(poly_ptr, poly_ptr);
+int combine(poly_ptr);
 int is_number(int);
 
 int main(void)
@@ -143,7 +143,7 @@ poly mult(poly_ptr p1, poly_ptr p2, poly_ptr pro)
     combine(pro);
     return *pro;
 }
-void print_list(poly_ptr p)
+int print_list(poly_ptr p)
 {
     int i = 0;
 
@@ -161,8 +161,10 @@ void print_list(poly_ptr p)
         i++;
     }
     printf("\n");
+
+    return 0;
 }
-void sort(poly_ptr sorted)
+int sort(poly_ptr sorted)
 {
     poly_ptr temp = malloc(sizeof(poly));
     temp = sorted;
@@ -177,9 +179,9 @@ void sort(poly_ptr sorted)
             temp = temp_head;
             sorted = sorted->next;
     }
-    return;
+    return 0;
 }
-void swap(poly_ptr a, poly_ptr b)
+int swap(poly_ptr a, poly_ptr b)
 {
    int temp = 0; 
 
@@ -191,9 +193,9 @@ void swap(poly_ptr a, poly_ptr b)
    a->coeff = b->coeff;
    b->coeff = temp;
 
-   return;
+   return 0;
 }
-void combine(poly_ptr ptr)
+int combine(poly_ptr ptr)
 {
     ptr = ptr->next;
 
@@ -206,7 +208,7 @@ void combine(poly_ptr ptr)
         else
             ptr = ptr->next;
     }
-    return;
+    return 0;
 }
 int is_number(int x)
 {
