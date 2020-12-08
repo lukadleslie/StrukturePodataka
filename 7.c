@@ -16,6 +16,7 @@ void push_int(list_ptr, int, int*);
 void push_char(list_ptr, int);
 void push_end(list_ptr, list_ptr);
 void reverse_print(list_ptr);
+void parantheses(list_ptr, list_ptr);
 int izracun(list_ptr, list_ptr);
 int racun(char, int, int);
 int is_operator(int);
@@ -126,11 +127,41 @@ void postfix(list_ptr post, list_ptr stack, int x)
     if(temp->next == NULL)
         return;
     int el = temp->el;
+    if(el == 3){
+        parantheses(stack, post);
+        return;
+    }
+    else if(el == 2)
+        return;
+
     while(temp->next != NULL){
-        if(el <= temp->next->el)
+        if(el <= temp->next->el && temp->next->el < 2)
             pop_to_postfix(post, stack, temp->next->op);
+        else
+            return;
         temp = temp->next;
     }
+}
+void parantheses(list_ptr stack, list_ptr post)
+{
+    list_ptr temp, stack_free;
+    list_ptr head_free = stack->next;
+    stack->next = stack->next->next;
+    free(head_free);
+    while(stack->next->el != 2){
+        temp = (list_ptr)malloc(sizeof(list));
+        temp->next = post->next;
+        post->next = temp;
+        temp->op = stack->next->op;
+        temp->el = 0;
+
+        stack_free = stack->next;
+        stack->next = stack->next->next;
+        free(stack_free);
+    }
+    stack_free = stack->next;
+    stack->next = stack->next->next;
+    free(stack_free);
 }
 void pop_to_postfix(list_ptr post, list_ptr stack, int x)
 {
@@ -190,9 +221,11 @@ void push_char(list_ptr ptr, int x)
     else if(x == 42 || x == 47)
         temp->el = 1;
     else if(x == 40)
+        temp->el = 2;
+    else if(x == 41)
         temp->el = 3;
     else
-        temp->el = 4;
+        printf("ERROR\n");
 }
 void pop(list_ptr ptr, int x)
 {
