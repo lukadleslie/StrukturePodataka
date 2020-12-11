@@ -13,27 +13,35 @@ typedef struct directory{
 
 typedef struct stack *stack_ptr;
 typedef struct stack{
-    char* name;
-    ptr next;
+    ptr address;
+    stack_ptr next;
 } stack;
 
 int unos(char*);
 int mkdir(ptr, char*);
 int mkchild(ptr, char*);
-int change_dir(ptr, char*);
 int exists(ptr, char*);
 int empty_dir(ptr);
+int empty_stack(stack_ptr);
 int print(ptr);
+void print_stack(stack_ptr);
+void push(stack_ptr, ptr);
+ptr pop(stack_ptr);
 
 int main()
 {
     directory dir; dir.next = NULL; dir.child = NULL; strcpy(dir.name, "~");
-    stack stack; stack.next = NULL;
+    ptr current = &dir;
+    stack stog; stog.next = NULL;
     char c[M], ime[M];
     int d = 1, i = 0, empty;
 
     do{
-        printf("\n%s ", dir.name);
+        if(strcmp(current->name, "~"))
+            printf("\n%s: ", current->name);
+        else
+            printf("\n%s ", current->name);
+
 
         if(unos(c)){
             unos(ime);
@@ -47,32 +55,42 @@ int main()
         if(!strcmp(c, "mkdir")){
             if(empty)
                 printf("\nDirectory must have a name\n");
-            else if (empty_dir(&dir))
-                mkchild(&dir, ime);
-            else if(exists(&dir, ime))
+            else if (empty_dir(current))
+                mkchild(current, ime);
+            else if(exists(current, ime))
                 printf("\nA directory with that name already exists in current directory\n");
             else
-                mkdir(&dir, ime);
+                mkdir(current, ime);
         }
         else if(!strcmp(c, "ls")){
-            if(empty_dir(&dir))
+            if(empty_dir(current))
                 printf("\nempty...\n");
             else
-                print(&dir);
+                print(current);
         }
         else if((!strcmp(c, "cd")) && (!empty)){
-            if(!exists(&dir, ime))
+            if(!exists(current, ime))
                 printf("\nNo such file or directory\n");
             else{
-                //push to stack function here//
-                change_dir(&dir, ime);
+                push(&stog, current);
+                current = current->child;
+                while(strcmp(current->name, ime))
+                    current = current->next;
             }
         } 
         else if((!strcmp(c, "cd")) && empty){
-            //pop from stack function here//
+            if(empty_stack(&stog)){
+                printf("\nyoure head head directory\n");
+            }
+            else
+                current = pop(&stog);
         }
         else if((!strcmp(c, "clear")) || (!strcmp(c, "c"))){
             system("clear");
+        }
+        else if(!strcmp(c, "pwd")){
+            print_stack(&stog);
+            printf("%s\n", current->name);
         }
         else if(!strcmp(c, "q"))
             d = 0;
@@ -113,18 +131,6 @@ int mkdir(ptr root, char* ime)
     dir->child = NULL;
     return 0;
 }
-int change_dir(ptr dir, char* ime)
-{
-    ptr temp = dir;
-    printf("%s\n", temp->child->name);
-    printf("%s\n", temp->child->next->name);
-    while(strcmp(temp->name, ime)){
-        printf("%s  %s\n", temp-name, ime);
-        temp = temp->next;
-    }
-    dir = temp;
-    return 0;
-}
 int print(ptr p)
 {
     ptr dir = p->child; 
@@ -149,4 +155,31 @@ int empty_dir(ptr ptr)
     if(ptr->child == NULL)
         return 1;
     return 0;
+}
+int empty_stack(stack_ptr ptr)
+{
+    return (ptr->next == NULL) ? 1 : 0;
+}
+void push(stack_ptr stack, ptr dir)
+{
+    stack_ptr temp = malloc(sizeof(stack));
+    temp->address = dir;
+    temp->next = stack->next;
+    stack->next = temp;
+}
+ptr pop(stack_ptr stack)
+{
+    ptr dir = stack->next->address;
+    stack_ptr stack_free = stack->next;
+    stack->next = stack->next->next;
+    free(stack_free);
+    return dir;
+}
+void print_stack(stack_ptr ptr)
+{
+    if(ptr == NULL)
+        return;
+    print_stack(ptr->next);
+    if(strlen(ptr->address->name))
+        printf("%s/", ptr->address->name);
 }
