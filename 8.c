@@ -80,7 +80,7 @@ int main()
         } 
         else if((!strcmp(c, "cd")) && empty){
             if(empty_stack(&stog)){
-                printf("\nyoure head head directory\n");
+                printf("\nin head directory\n");
             }
             else
                 current = pop(&stog);
