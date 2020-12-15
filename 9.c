@@ -22,7 +22,7 @@ int delete(ptr,int);
 
 int main()
 {
-    int x, y = 0, z = 1, i = 0;
+    int x, y = 0, z = 1, i = 0, del = 0;
     char c, in[100];
     ptr head, found;
 
@@ -61,7 +61,9 @@ int main()
             printf("Enter element you would like to delete: ");
             while(!(x = input()))
                 printf("Please enter a valid integer...\n");
-            if(delete(head, x))
+            if((del=delete(head,x)) == -1)
+                printf("Don't delete head element while rest of tree is empty...\n");
+            else if(del)
                 printf("element deleted\n");
             else
                 printf("element not in tree\n");
@@ -173,7 +175,7 @@ int delete(ptr current, int el)
         if(el == current->el){
             left = current->left;
             right = current->right;
-            if(left == NULL && right == NULL){
+            if(left == NULL && right == NULL && current != parent){
                 if(parent->left->el == current->el)
                     parent->left = left;
                 else
@@ -186,17 +188,19 @@ int delete(ptr current, int el)
                 current->el = right->el;
                 right->el = temp;
                 current->right = right->right;
-                free(right);
+                free(current);
                 return 1;
             }
-            else{
+            else if(left != NULL){
                 temp = left->el;
                 current->el = left->el;
                 left->el = temp;
                 current->left = left->right;
-                free(left);
+                free(current);
                 return 1;
             }
+            else
+                return -1;
         }
         else if(el < current->el){
             parent = current;
