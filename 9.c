@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 #define M 10
 
@@ -15,37 +17,63 @@ void add_node(ptr,int);
 void print(ptr,int);
 int is_number(char);
 int input(void);
-int find(ptr,int);
+ptr find(ptr,int,int*);
 int delete(ptr,int);
 
 int main()
 {
-    int x, i = 0;
-    ptr head;
+    int x, y = 0, z = 1, i = 0;
+    char c, in[100];
+    ptr head, found;
 
-    printf("How many nodes would you like to insert: ");
-    scanf("%d", &i);
-    
-    if(!i)
-        return 0;
-
-    printf("Enter head val: ");
-    scanf("%d", &x);
+    printf("\nEnter head val: ");
+    while(!(x = input()))
+        printf("Please enter a valid integer...\n");
     head = create_node(x);
 
     do{
-        printf("enter val: "); 
-        if((x = input()))
-            add_node(head, x);
-        else{
-            printf("Please enter a valid integer...\n");
-            ++i;
+        printf("\nA - Add element\t  C - Clear terminal\tD - Delete element\nF - Find element  P - Print tree\tQ - quit\n\n");
+        scanf(" %[^\n]", in);
+        if(strlen(in) != 1){
+            printf("invalid input...\n");
+            continue;
         }
-    } while(--i);
+        c = tolower(in[0]);
+        if(c == 'a'){
+            printf("enter val: "); 
+            while(!(x = input()))
+                printf("Please enter a valid integer...\n");
+            add_node(head, x);
+        }
+        else if(c == 'p')
+            print(head, 0);
+        else if(c == 'f'){
+            printf("Enter element you would like to find: ");
+            while(!(x = input()))
+                printf("Please enter a valid integer...\n");
+            found = find(head, x, &y);
+            if(y)
+                printf("found %d under node: %d\n", x, found->el);
+            else
+                printf("element not in tree\n");
+        }
+        else if(c == 'd'){
+            printf("Enter element you would like to delete: ");
+            while(!(x = input()))
+                printf("Please enter a valid integer...\n");
+            if(delete(head, x))
+                printf("element deleted\n");
+            else
+                printf("element not in tree\n");
+        }
+        else if(c == 'c')
+            system("clear");
+        else if(c == 'q')
+            z = 0;
+        else
+            printf("Invalid input...\n");
+    } while(z);
 
-    print(head, 0);
-
-    printf("\n\n\n");
     return 0;
 }
 ptr create_node(int x)
@@ -116,11 +144,68 @@ int is_number(char x)
 {
     return (x < 58 && x > 47) ? (x-48) : 0;
 }
-int find(ptr current, int el)
+ptr find(ptr current, int el, int *found)
 {
+    ptr parent = current;
+    while(current != NULL){
+        if(el == current->el){
+            *found = 1;
+            return parent;
+        }
+        else if(el < current->el){
+            parent = current;
+            current = current->left;
+        }
+        else{
+            parent = current;
+            current = current->right;
+        }
+    }
+    *found = 0;
     return 0;
 }
 int delete(ptr current, int el)
 {
+    ptr parent = current;
+    int temp;
+    ptr left, right;
+    while(current != NULL){
+        if(el == current->el){
+            left = current->left;
+            right = current->right;
+            if(left == NULL && right == NULL){
+                if(parent->left->el == current->el)
+                    parent->left = left;
+                else
+                    parent->right = right;
+                free(current);
+                return 1;
+            }
+            else if(right != NULL){
+                temp = right->el;
+                current->el = right->el;
+                right->el = temp;
+                current->right = right->right;
+                free(right);
+                return 1;
+            }
+            else{
+                temp = left->el;
+                current->el = left->el;
+                left->el = temp;
+                current->left = left->right;
+                free(left);
+                return 1;
+            }
+        }
+        else if(el < current->el){
+            parent = current;
+            current = current->left;
+        }
+        else{
+            parent = current;
+            current = current->right;
+        }
+    }
     return 0;
 }
