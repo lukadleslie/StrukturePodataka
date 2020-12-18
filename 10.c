@@ -6,6 +6,7 @@
 typedef struct node *ptr;
 typedef struct stack *stack_ptr;
 typedef struct node{
+    int num;
     char operand, operator;
     ptr right, left;
 }node;
@@ -20,7 +21,7 @@ int read(char**);
 void print(stack_ptr);
 void push(ptr,stack_ptr);
 ptr pop(ptr,stack_ptr);
-ptr create_node(char,char);
+ptr create_node(char,char,int);
 ptr create_tree(char*);
 
 int main(void)
@@ -40,17 +41,17 @@ int main(void)
 
     return 0;
 }
-ptr create_node(char oprand, char oprator)
+ptr create_node(char oprand, char oprator, int nummy)
 {
     ptr cvor = malloc(sizeof(node));
     cvor->operand = oprand;
     cvor->operator = oprator;
+    cvor->num = nummy;
     cvor->left = cvor->right = NULL;
     return cvor;
 }
 int read(char **input)
 {
-    char name[128];
     FILE *p = fopen(*input, "r");
     if(p == NULL)
         return 0;
@@ -65,12 +66,26 @@ ptr create_tree(char *input)
     stog.next = NULL;
     stack_ptr stog_ptr = &stog;
     ptr root;
-    int i = 0;
+    int i = 0, prev = 0, x = 0;
     while(input[i++] != '\0')
-        if(isalpha(input[i-1]) || isdigit(input[i-1]))
-            push(create_node(input[i-1], '\0'), stog_ptr);
+        if(input[i-1] == ' ' && prev){
+            push(create_node('\0','\0',x), stog_ptr);
+            prev = 0;
+        }
+        else if(isalpha(input[i-1]))
+            push(create_node(input[i-1], '\0', 0), stog_ptr);
+        else if(isdigit(input[i-1])){
+            if(!prev){
+                x = input[i-1] - 48;
+                prev = 1;
+            }
+            else{
+                x *= 10;
+                x += (input[i-1] - 48);
+            }
+        }
         else if(input[i-1] != ' ')
-            root = pop(create_node('\0', input[i-1]), stog_ptr);
+            root = pop(create_node('\0', input[i-1],0), stog_ptr);
     return root;
 }
 void push(ptr node, stack_ptr stack)
@@ -105,8 +120,10 @@ void print(stack_ptr ptr)
     while(ptr->next != NULL){
         if(ptr->next->address->operand != '\0')
             printf("%c\n", ptr->next->address->operand);
-        else
+        else if(ptr->next->address->operator != '\0')
             printf("%c\n", ptr->next->address->operator);
+        else
+            printf("%d\n", ptr->next->address->num);
         ptr = ptr->next; 
     }
 }
@@ -122,8 +139,10 @@ int print_tree(ptr current, int space)
         printf(" "); 
     if(current->operand != '\0')
         printf("%c\n", current->operand); 
-    else
+    else if(current->operator != '\0')
         printf("%c\n", current->operator); 
+    else
+        printf("%d\n", current->num); 
     if (current->left != NULL)
         print_tree(current->left, space); 
     return 1;
@@ -136,8 +155,10 @@ int create_infix(ptr current)
         create_infix(current->left);
     if(current->operand != '\0')
         printf("%c ", current->operand);
-    else
+    else if(current->operator != '\0')
         printf("%c ", current->operator);
+    else
+        printf("%d ", current->num);
     if(current->right)
         create_infix(current->right);
     return 0;
