@@ -168,48 +168,53 @@ ptr find(ptr current, int el, int *found)
 }
 int delete(ptr current, int el)
 {
-    ptr parent = current;
-    int temp;
-    ptr left, right;
-    while(current != NULL){
-        if(el == current->el){
-            left = current->left;
-            right = current->right;
-            if(left == NULL && right == NULL && current != parent){
-                if(parent->left->el == current->el)
-                    parent->left = left;
-                else
-                    parent->right = right;
-                free(current);
-                return 1;
-            }
-            else if(right != NULL){
-                temp = right->el;
-                current->el = right->el;
-                right->el = temp;
-                current->right = right->right;
-                free(current);
-                return 1;
-            }
-            else if(left != NULL){
-                temp = left->el;
-                current->el = left->el;
-                left->el = temp;
-                current->left = left->right;
-                free(current);
-                return 1;
-            }
+    int x = 0;
+    ptr delete = find(current, el, &x);
+    ptr delete_free;
+    if(el == current->el && (current->left == current->right))
+        return -1;
+    if(!x)
+        return 0;
+    if(delete->left != NULL && delete->right != NULL){
+        if(delete->left->el == el){
+            delete_free = delete->left;
+            if(delete->left->right != NULL)
+                delete->left = delete->left->right;
+            else if(delete->left->left != NULL)
+                delete->left = delete->left->left;
             else
-                return -1;
+                delete->left = NULL;
         }
-        else if(el < current->el){
-            parent = current;
-            current = current->left;
+        else if(delete->right->el == el){
+            delete_free = delete->right;
+            if(delete->right->right != NULL)
+                delete->right = delete->right->right;
+            else if(delete->right->left != NULL)
+                delete->right = delete->right->left;
+            else
+                delete->right = NULL;
         }
-        else{
-            parent = current;
-            current = current->right;
-        }
+        else
+            delete_free = current;
     }
-    return 0;
+    else if(delete->left == NULL){
+        delete_free = delete->right;
+        if(delete->right->right != NULL)
+            delete->right = delete->right->right;
+        else if(delete->right->left != NULL)
+            delete->right = delete->right->left;
+        else
+            delete->right = NULL;
+    }
+    else if(delete->right == NULL){
+        delete_free = delete->left;
+        if(delete->left->right != NULL)
+            delete->left = delete->right->right;
+        else if(delete->left->left != NULL)
+            delete->left = delete->right->left;
+        else 
+            delete->left = NULL;
+    }
+    free(delete_free);
+    return 1;
 }
