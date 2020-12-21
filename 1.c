@@ -15,7 +15,7 @@ int main()
 {
     int max;
     FILE *ptr;
-    ptr = fopen("rez.txt", "r");
+    ptr = fopen("datoteke/1_rez.txt", "r");
 
     printf("Unesite max broj bodova: ");
     scanf("%d", &max);

@@ -121,7 +121,7 @@ int main()
                 break;
             case 'I':
             case 'i':
-                ptr = fopen("datoteke/write_to.txt", "w");
+                ptr = fopen("datoteke/2_write_to.txt", "w");
                 write(ptr, head);
                 if(head == NULL){
                     printf("\nList je prazan...\n\n");
@@ -130,7 +130,7 @@ int main()
                 break;
             case 'J':
             case 'j':
-                ptr = fopen("datoteke/read_from.txt", "r");
+                ptr = fopen("datoteke/2_read_from.txt", "r");
                 read(ptr, &head);
                 fclose(ptr);
                 break;

@@ -29,7 +29,7 @@ int main(void)
     ptr root;
 
     char *dat = malloc(128);
-    strcpy(dat, "datoteke/10.txt");
+    strcpy(dat, "datoteke/10_postfix.txt");
 
     if(!read(&dat))
         printf("File not found\n");

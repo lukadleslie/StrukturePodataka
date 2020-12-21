@@ -25,7 +25,7 @@ int is_number(int);
 
 int main(void)
 {
-    char dat_1[MAX_WORD] = "datoteke/prvi.txt", dat_2[MAX_WORD] = "datoteke/drugi.txt";
+    char dat_1[MAX_WORD] = "datoteke/4_prvi.txt", dat_2[MAX_WORD] = "datoteke/4_drugi.txt";
 
     poly_ptr p_1 = malloc(sizeof(poly)), p_2 = malloc(sizeof(poly));
     p_1->next = NULL, p_2->next = NULL;

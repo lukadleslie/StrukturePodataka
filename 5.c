@@ -21,7 +21,7 @@ int printlist(list_ptr);
 
 int main(void)
 {
-    char dat_1[MAX_WORD] = "datoteke/L1.txt", dat_2[MAX_WORD] = "datoteke/L2.txt";
+    char dat_1[MAX_WORD] = "datoteke/5_L1.txt", dat_2[MAX_WORD] = "datoteke/5_L2.txt";
     list l1, l2, uni, inter;
     l1.next = NULL, l2.next = NULL, uni.next = NULL, inter.next = NULL;
 

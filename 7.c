@@ -29,7 +29,7 @@ int main(void)
     list stack, stack2, post;
     stack.next = NULL, stack2.next = NULL, post.next = NULL;
 
-    FILE* ptr = fopen("datoteke/infix.txt", "r+");
+    FILE* ptr = fopen("datoteke/7_infix.txt", "r+");
 
     while (!(feof(ptr))) {
         c = fgetc(ptr);
